@@ -814,7 +814,7 @@ button:focus {
       color: #fff;
       font-size: 20px; }
   #showcase .showcase-slider .screenshot-thumb > .hover-content {
-    background-color: #3ecf8e;
+    background-color: #000000;
     opacity: 0.90;
     height: 85%;
     left: 0;
