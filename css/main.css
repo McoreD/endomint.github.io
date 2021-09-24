@@ -758,7 +758,7 @@ button:focus {
     width: 97%;
     z-index: 12;
     top: 260px;
-    margin: 0px auto; }
+    margin-top: 200px; }
   #showcase .showcase-text h2 {
     color: #fff; }
   #showcase .showcase-text p {
