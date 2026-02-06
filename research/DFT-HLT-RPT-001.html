@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Parent's Guide to Martial Arts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A guided-journey structure is used to walk the parent through a logical decision-making process. It starts with the final recommendation upfront (respecting the user's time), addresses their initial query (Krav Maga), provides an interactive comparison of top options (the core exploratory tool), visualizes the recommended strategy, and ends with actionable local school information and a vetting tool. This non-linear structure prioritizes user task completion (making a decision) over simply replicating the report's linear format, making the information more digestible and useful. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Comparative data from Table 1. Goal: Compare. Viz/Method: Interactive Radar Chart (Chart.js) and dynamic text cards. Interaction: User clicks buttons (BJJ, Judo, Hybrid) to highlight data on the chart and display corresponding qualitative analysis. Justification: More engaging and explorable than a static table, allowing focused comparison. Library: Chart.js.
+        - Report Info: The recommended Judo -> BJJ pathway. Goal: Inform/Organize. Viz/Method: HTML/CSS flexbox diagram. Interaction: None (static visual). Justification: A simple visual flow is quicker to understand than a text description. Method: HTML/CSS.
+        - Report Info: Local school profiles. Goal: Inform/Action. Viz/Method: Interactive cards in a grid. Interaction: Hover effects for engagement. Justification: Cleanly presents actionable options. Method: HTML/CSS.
+        - Report Info: Vetting checklist. Goal: Utility. Viz/Method: HTML list with custom-styled checkboxes. Interaction: Clickable checkboxes. Justification: Turns a passive list into an active tool for the parent. Method: HTML/CSS/JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7;
+            color: #4A4A4A;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #468289;
+            border-bottom-color: #468289;
+        }
+        .btn-primary {
+            background-color: #468289;
+            color: #FDFBF7;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #3a6b70;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: #468289;
+            border: 1px solid #468289;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #468289;
+            color: #FDFBF7;
+        }
+        .btn-selector.active {
+            background-color: #468289;
+            color: #FDFBF7;
+            border-color: #468289;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .school-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .school-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .checklist-item input:checked + label:before {
+            background-color: #468289;
+            border-color: #468289;
+            content: '\2713';
+            color: white;
+            text-align: center;
+            line-height: 1.2rem;
+        }
+        .checklist-item label:before {
+            content: '';
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid #ccc;
+            border-radius: 0.25rem;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.75rem;
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-[#468289]">Martial Arts Guide</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#intro" class="nav-link pb-1">Start Here</a>
+                <a href="#comparison" class="nav-link pb-1">Compare Arts</a>
+                <a href="#pathway" class="nav-link pb-1">The Strategy</a>
+                <a href="#schools" class="nav-link pb-1">Local Schools</a>
+                <a href="#checklist" class="nav-link pb-1">Vetting Tool</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-2xl">☰</button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden flex-col items-center space-y-4 py-4">
+             <a href="#intro" class="nav-link pb-1">Start Here</a>
+             <a href="#comparison" class="nav-link pb-1">Compare Arts</a>
+             <a href="#pathway" class="nav-link pb-1">The Strategy</a>
+             <a href="#schools" class="nav-link pb-1">Local Schools</a>
+             <a href="#checklist" class="nav-link pb-1">Vetting Tool</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <section id="intro" class="text-center mb-24 scroll-mt-24">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl mb-4">A Strategic Path to Confidence</h1>
+            <p class="text-lg md:text-xl max-w-3xl mx-auto mb-6 text-gray-600">Choosing the right martial art for your 5-year-old is a long-term investment in her safety and confidence. This guide translates extensive research into a clear, actionable plan for your daughter's journey, starting right here in the Rossmoyne area.</p>
+            <div class="bg-teal-50 border border-teal-200 rounded-lg p-6 max-w-3xl mx-auto">
+                <h3 class="text-2xl mb-2 text-[#468289]">The Definitive Recommendation</h3>
+                <p class="text-gray-700">The most effective pathway is to **start with Judo now** to build a strong foundation in safety and balance, then **transition to or cross-train in Brazilian Jiu-Jitsu (BJJ)** as she matures to master control-based self-defense. This two-stage approach provides the best of both worlds for her development.</p>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="kravmaga" class="mb-24 scroll-mt-24">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl text-center mb-4">You Mentioned Krav Maga. Let's Talk About It.</h2>
+                <p class="text-center text-gray-600 mb-8">Your intuition is sharp—Krav Maga is a formidable self-defense system. However, its core principles, which make it so effective for adults, are fundamentally unsuitable and even problematic for a 5-year-old. This section explains why a different starting point is a more strategic choice.</p>
+                <div class="bg-white p-8 rounded-lg shadow-md border border-gray-100">
+                    <h3 class="text-2xl mb-3 text-[#B99556]">The Parent's Dilemma with Krav Maga</h3>
+                    <p class="text-gray-700 leading-relaxed">Adult Krav Maga teaches targeting vulnerable areas like the eyes and throat for rapid threat neutralization. Teaching these techniques to a child who is still developing impulse control is irresponsible. Consequently, "Kids Krav Maga" programs are heavily diluted, focusing on basic motor skills (kicking, rolling) that are common to all martial arts. You would be paying for the "Krav Maga" brand name while receiving a generic curriculum. A foundational grappling art like Judo or BJJ offers a more honest, direct, and safer pathway to the skills your daughter will need to control a larger, stronger opponent without relying on dangerous strikes.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="comparison" class="mb-24 scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl text-center mb-4">Interactive Comparison of Top Martial Arts</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">While the recommendation is a Judo-to-BJJ pathway, understanding the strengths of each art is crucial. Use this interactive tool to compare the top three recommendations based on the criteria most important for your daughter's long-term safety and development. Click each button to see the analysis.</p>
+            
+            <div class="flex justify-center space-x-2 md:space-x-4 mb-8">
+                <button class="btn-selector btn-secondary px-4 py-2 rounded-md" data-art="bjj">Brazilian Jiu-Jitsu</button>
+                <button class="btn-selector btn-secondary px-4 py-2 rounded-md" data-art="judo">Judo</button>
+                <button class="btn-selector btn-secondary px-4 py-2 rounded-md" data-art="hybrid">Hybrid/Freestyle</button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="chart-container">
+                    <canvas id="efficacyChart"></canvas>
+                </div>
+                <div id="art-details" class="bg-white p-6 md:p-8 rounded-lg shadow-md border border-gray-100 min-h-[300px]">
+                    <h3 id="art-title" class="text-2xl mb-3 text-[#468289]">Select an Art to See Details</h3>
+                    <p id="art-description" class="text-gray-700 leading-relaxed">Click a button above to explore each martial art's profile, including its core philosophy and suitability for a young child.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="pathway" class="mb-24 scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl text-center mb-4">Visualizing The Recommended Strategy</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">The expert recommendation isn't about choosing one art for life, but about a strategic sequence that maximizes safety, skill, and confidence at each stage of your daughter's development. This pathway ensures she builds the right skills at the right time.</p>
+            
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-0">
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100 text-center w-full md:w-1/3">
+                    <div class="text-4xl mb-2">①</div>
+                    <h3 class="text-xl font-bold mb-2 text-[#468289]">Start with Judo (Ages 5-9)</h3>
+                    <p class="text-sm text-gray-600">Build a foundation of balance, coordination, and the invaluable life skill of falling safely (*ukemi*). This creates a resilient and confident base.</p>
+                </div>
+                <div class="text-4xl text-gray-300 mx-4 font-thin transform rotate-90 md:rotate-0">→</div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100 text-center w-full md:w-1/3">
+                    <div class="text-4xl mb-2">②</div>
+                    <h3 class="text-xl font-bold mb-2 text-[#468289]">Add BJJ (Ages 9+)</h3>
+                    <p class="text-sm text-gray-600">Transition to or cross-train in Brazilian Jiu-Jitsu to master the art of ground control and leverage—the key to neutralizing a size and strength disadvantage.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="schools" class="mb-24 scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl text-center mb-4">Actionable Local Recommendations</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">The best strategy is only as good as the instructor who teaches it. Based on research, here are the top-tier schools near Rossmoyne that align with the recommended pathways. We strongly advise taking a trial class to find the best fit for your daughter.</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="school-card bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col">
+                    <h3 class="text-xl font-bold mb-2 text-[#468289]">Legion 13</h3>
+                    <p class="font-semibold mb-2 text-gray-500">Pathway: Brazilian Jiu-Jitsu</p>
+                    <p class="text-gray-700 mb-4 flex-grow">The top local choice for BJJ. Their "Tots" program (3-5 years) is specifically designed for her age group, focusing on fun in a family-oriented environment led by champion instructors.</p>
+                    <p class="text-sm text-gray-500">📍 Unit 1/53 Kent St, Cannington</p>
+                </div>
+
+                <div class="school-card bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col">
+                    <h3 class="text-xl font-bold mb-2 text-[#B99556]">Curtin Elite Judo Club</h3>
+                    <p class="font-semibold mb-2 text-gray-500">Pathway: Judo First</p>
+                    <p class="text-gray-700 mb-4 flex-grow">The ideal starting point. A community club offering free trials and a welcoming environment to learn the foundational skills of falling, balance, and discipline.</p>
+                    <p class="text-sm text-gray-500">📍 Room 507, Canning College, Bentley</p>
+                </div>
+
+                <div class="school-card bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col">
+                    <h3 class="text-xl font-bold mb-2 text-gray-700">Cobra Martial Arts</h3>
+                    <p class="font-semibold mb-2 text-gray-500">Pathway: Hybrid/Freestyle</p>
+                    <p class="text-gray-700 mb-4 flex-grow">A long-standing school offering a "Little Cobras" program that blends multiple arts. Requires careful vetting to ensure a strong grappling focus for your specific goals.</p>
+                    <p class="text-sm text-gray-500">📍 Unit 4/1326 Albany Hwy, Cannington</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="checklist" class="scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl text-center mb-4">Your Trial Class Vetting Tool</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">When you attend a trial class, you're interviewing the instructor and the school. Use this interactive checklist to observe and evaluate, ensuring you make the most informed decision for your daughter.</p>
+            
+            <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-100">
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-[#468289]">Instructor & Teaching Style</h3>
+                        <div class="space-y-3">
+                            <div class="checklist-item"><input type="checkbox" id="c1" class="hidden"><label for="c1" class="cursor-pointer">Instructor is patient, positive, and knows the kids' names.</label></div>
+                            <div class="checklist-item"><input type="checkbox" id="c2" class="hidden"><label for="c2" class="cursor-pointer">Class is primarily fun and game-based for this age group.</label></div>
+                            <div class="checklist-item"><input type="checkbox" id="c3" class="hidden"><label for="c3" class="cursor-pointer">Handles distracted or upset children constructively.</label></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-[#468289]">Safety & Class Structure</h3>
+                        <div class="space-y-3">
+                            <div class="checklist-item"><input type="checkbox" id="c4" class="hidden"><label for="c4" class="cursor-pointer">Facility is clean and mats are well-maintained.</label></div>
+                            <div class="checklist-item"><input type="checkbox" id="c5" class="hidden"><label for="c5" class="cursor-pointer">Good instructor-to-student ratio (e.g., 1:12 or better).</label></div>
+                            <div class="checklist-item"><input type="checkbox" id="c6" class="hidden"><label for="c6" class="cursor-pointer">Clear emphasis on safety and partner care.</label></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-[#468289]">School Culture & Environment</h3>
+                        <div class="space-y-3">
+                            <div class="checklist-item"><input type="checkbox" id="c7" class="hidden"><label for="c7" class="cursor-pointer">Other children seem happy, engaged, and respectful.</label></div>
+                            <div class="checklist-item"><input type="checkbox" id="c8" class="hidden"><label for="c8" class="cursor-pointer">Atmosphere is welcoming and supportive, not overly intense.</label></div>
+                            <div class="checklist-item"><input type="checkbox" id="c9" class="hidden"><label for="c9" class="cursor-pointer">Parents are welcome to watch the classes.</label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-24">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-400">
+            <p>This interactive guide was generated to help parents make informed decisions about their children's well-being and development.</p>
+            <p class="text-sm mt-2">Content based on the "Strategic Guide to Martial Arts for Your Daughter" report.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const artData = {
+                bjj: {
+                    title: 'Brazilian Jiu-Jitsu (BJJ)',
+                    description: 'The art of control. BJJ is founded on using leverage and technique to control and submit a larger opponent on the ground. Its live sparring ("rolling") is excellent for reaction time. It is one of the safest arts for children due to the lack of striking.',
+                    scores: [5, 5, 5, 5, 5] 
+                },
+                judo: {
+                    title: 'Judo',
+                    description: 'The "Gentle Way." Judo focuses on using an opponent\'s momentum against them with throws and pins. Its greatest contribution is teaching how to fall safely (ukemi), an invaluable life skill. It provides an exceptional foundation for all grappling arts.',
+                    scores: [4, 5, 4, 5, 5] 
+                },
+                hybrid: {
+                    title: 'Hybrid / Freestyle',
+                    description: 'An integrated approach blending striking and grappling. Its quality is highly variable and depends entirely on the instructor\'s expertise across multiple disciplines. It can be comprehensive but risks being a "jack of all trades, master of none."',
+                    scores: [3, 4, 3, 4, 3] 
+                }
+            };
+
+            const ctx = document.getElementById('efficacyChart').getContext('2d');
+            const artDetailsTitle = document.getElementById('art-title');
+            const artDetailsDescription = document.getElementById('art-description');
+            const selectorButtons = document.querySelectorAll('.btn-selector');
+
+            const chartData = {
+                labels: [
+                    'vs. Stronger Attacker', 
+                    'Short-Range', 
+                    'Reaction Time', 
+                    'Suitability for 5 y/o', 
+                    'Long-Term Pathway'
+                ],
+                datasets: [
+                    {
+                        label: 'BJJ',
+                        data: artData.bjj.scores,
+                        backgroundColor: 'rgba(70, 130, 137, 0.2)',
+                        borderColor: 'rgba(70, 130, 137, 1)',
+                        pointBackgroundColor: 'rgba(70, 130, 137, 1)',
+                        borderWidth: 2,
+                        hidden: true
+                    },
+                    {
+                        label: 'Judo',
+                        data: artData.judo.scores,
+                        backgroundColor: 'rgba(185, 149, 86, 0.2)',
+                        borderColor: 'rgba(185, 149, 86, 1)',
+                        pointBackgroundColor: 'rgba(185, 149, 86, 1)',
+                        borderWidth: 2,
+                        hidden: true
+                    },
+                    {
+                        label: 'Hybrid',
+                        data: artData.hybrid.scores,
+                        backgroundColor: 'rgba(136, 136, 136, 0.2)',
+                        borderColor: 'rgba(136, 136, 136, 1)',
+                        pointBackgroundColor: 'rgba(136, 136, 136, 1)',
+                        borderWidth: 2,
+                        hidden: true
+                    }
+                ]
+            };
+
+            const efficacyChart = new Chart(ctx, {
+                type: 'radar',
+                data: chartData,
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { 
+                                font: { size: 10 },
+                                color: '#4A4A4A'
+                            },
+                            ticks: {
+                                backdropColor: '#FDFBF7',
+                                color: '#777',
+                                stepSize: 1,
+                                max: 5,
+                                min: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            });
+
+            function updateArtDetails(artKey) {
+                const data = artData[artKey];
+                artDetailsTitle.textContent = data.title;
+                artDetailsDescription.textContent = data.description;
+
+                efficacyChart.data.datasets.forEach((dataset, index) => {
+                    const key = dataset.label.toLowerCase().startsWith('hybrid') ? 'hybrid' : dataset.label.toLowerCase();
+                    efficacyChart.setDatasetVisibility(index, key === artKey);
+                });
+                efficacyChart.update();
+
+                selectorButtons.forEach(btn => {
+                    if (btn.dataset.art === artKey) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
+            selectorButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    updateArtDetails(button.dataset.art);
+                });
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    if(mobileMenu.classList.contains('hidden') === false){
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
